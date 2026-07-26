@@ -1,0 +1,69 @@
+{
+  "name": "inventrack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "InvenTrack — offline desktop inventory & sales management app",
+  "main": "electron/main.js",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "dev:electron": "wait-on http://localhost:3000 http://localhost:5000/api/health && cross-env ELECTRON_DEV=true electron .",
+    "dev:desktop": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\" \"npm:dev:electron\"",
+
+    "build:frontend": "npm run build --workspace frontend",
+    "package": "npm run build:frontend && electron-builder",
+    "package:win": "npm run build:frontend && electron-builder --win",
+    "package:mac": "npm run build:frontend && electron-builder --mac",
+    "package:linux": "npm run build:frontend && electron-builder --linux"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.inventrack.desktop",
+    "productName": "InvenTrack",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "backend/**/*",
+      "!backend/data/*.sqlite",
+      "frontend/.next/**/*",
+      "frontend/public/**/*",
+      "frontend/package.json",
+      "frontend/next.config.js",
+      "frontend/node_modules/**/*",
+      "!**/node_modules/**/{test,tests,__tests__,*.md,*.map}",
+      "!**/*.ts"
+    ],
+    "asarUnpack": [
+      "**/*.node",
+      "backend/node_modules/sqlite3/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.business"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    }
+  }
+}
